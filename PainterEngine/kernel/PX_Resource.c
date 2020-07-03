@@ -183,6 +183,12 @@ px_void PX_ResourceLibraryFree(PX_ResourceLibrary *lib)
 		case PX_RESOURCE_TYPE_DATA:
 			PX_MemoryFree(&pres->data);
 			break;
+			case PX_RESOURCE_TYPE_SOUND:
+				PX_SoundStaticDataFree(&pres->sound);
+				break;
+			case PX_RESOURCE_TYPE_SHAPE:
+				PX_ShapeFree(&pres->shape);
+				break;
 		}
 		pNode=pNode->pnext;
 	}
@@ -234,6 +240,12 @@ px_void PX_ResourceLibraryDelete(PX_ResourceLibrary *lib,const px_char key[])
 				case PX_RESOURCE_TYPE_DATA:
 					PX_MemoryFree(&pres->data);
 					break;
+					case PX_RESOURCE_TYPE_SOUND:
+						PX_SoundStaticDataFree(&pres->sound);
+						break;
+                    case PX_RESOURCE_TYPE_SHAPE:
+                        PX_ShapeFree(&pres->shape);
+                        break;
 				}
 				PX_ListPop(&lib->resources,pNode);
 				PX_MapErase(&lib->map,key);

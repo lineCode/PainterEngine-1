@@ -1,7 +1,7 @@
 #ifndef PX_SYNC_H
 #define PX_SYNC_H
 
-#include "../Core/PX_Core.h"
+#include "../core/PX_Core.h"
 
 
 #define PX_SYNC_SERVER_ID 0

@@ -110,10 +110,9 @@ static px_void PX_SyncFrameServerHandle_StatusConnect(PX_SyncFrame_Server *sync_
 				{
 					pClient->status=PX_SYNC_SERVERCLIENT_STATUS_PROCESSING;
 					pClient->timeIndexOffset=0;
-					pClient->timeStreamOffset;
+					pClient->timeStreamOffset=0;
 					pClient->port=port;
 					pClient->sendDurationTick=PX_SYNC_SERVER_SEND_DURATION;
-					PX_SYNC_LOG("connected\n");
 				}
 			}
 			
@@ -789,6 +788,8 @@ px_void PX_SyncFrameClientUpdate(PX_SyncFrame_Client *client,px_dword elpased)
 			PX_SyncFrame_ClientHandle_StatusProcessing(client,elpased);
 		}
 		break;
+		case PX_SYNC_CLIENT_STATUS_END:
+			break;
 	}
 }
 
@@ -1195,6 +1196,8 @@ px_bool PX_SyncDataClientUpdate(PX_SyncData_Client *syncdata_client,px_int elpas
 		break;
 	case PX_SYNCDATA_CLIENT_STATUS_SYNCHRONIZED:
 		break;
+		case PX_SYNCDATA_STATUS_ERROR:
+			break;
 	}
 	return PX_TRUE;
 }

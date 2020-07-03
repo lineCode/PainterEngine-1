@@ -1,6 +1,6 @@
 #ifndef PX_2DXCOMMON_H
 #define PX_2DXCOMMON_H
-#include "../Core/PX_Core.h"
+#include "../core/PX_Core.h"
 typedef struct
 {
 	px_dword magic;

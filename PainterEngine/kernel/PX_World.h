@@ -1,7 +1,7 @@
 #ifndef PX_WORLD_OBJECT_H
 #define PX_WORLD_OBJECT_H
 
-#include "../Core/PX_Core.h"
+#include "../core/PX_Core.h"
 #include "PX_Script_VM.h"
 #include "PX_Resource.h"
 #include "PX_Object.h"

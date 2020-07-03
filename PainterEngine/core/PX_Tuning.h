@@ -1,7 +1,7 @@
 #ifndef PX_TUNING
 #define PX_TUNING
 
-#include "../Core/PX_Core.h"
+#include "../core/PX_Core.h"
 
 #define  PX_TUNING_MAX_EXECUTE_SIZE 8192
 #define  PX_TUNING_DEFAULT_FRAME_SIZE 1024

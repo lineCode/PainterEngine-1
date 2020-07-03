@@ -298,6 +298,7 @@ px_int PX_LexerFilterChar(px_lexer *lexer,px_char ch)
 		lexer->SortStatus=PX_LEXERSORT_STATUS_NORMAL;
 		return PX_TRUE;
 		break;
+
 	case PX_LEXER_SORT_STATUS_NEWLINE:
 		if (PX_LexerIsSpacer(lexer,ch)||PX_LexerIsNewLine(ch))
 		{
@@ -305,6 +306,9 @@ px_int PX_LexerFilterChar(px_lexer *lexer,px_char ch)
 		}
 		lexer->SortStatus=PX_LEXERSORT_STATUS_NORMAL;
 		return PX_TRUE;
+
+		case PX_LEXER_SORT_STATUS_COMMENT:
+			break;
 	}
 	return PX_TRUE;
 }

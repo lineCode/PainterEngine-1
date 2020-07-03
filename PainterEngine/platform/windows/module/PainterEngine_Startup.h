@@ -27,7 +27,7 @@ px_void PX_FreeIOData(PX_IO_Data *io);
 px_bool PX_LoadTextureFromFile(px_memorypool *mp,px_texture *tex,const px_char path[]);
 px_bool PX_LoadShapeFromFile(px_memorypool *mp,px_shape *shape,const px_char path[]);
 px_bool PX_LoadSoundFromFile(px_memorypool *mp,px_shape *shape,const px_char path[]);
-px_bool PX_LoadAnimationLibraryFromFile(px_memorypool *mp,px_animationlibrary *lib,const px_char path[]);
+px_bool PX_LoadAnimationLibraryFromFile(px_memorypool *mp,PX_Animationlibrary *lib,const px_char path[]);
 px_bool PX_LoadScriptFromFile(px_memory *code,const px_char path[]);
 px_bool PX_LoadScriptInstanceFromFile(px_memorypool *mp,PX_ScriptVM_Instance *ins,const px_char path[]);
 px_bool PX_LoadTextureToResource(PX_Runtime *runtime,const px_char Path[],const px_char key[]);
@@ -36,6 +36,6 @@ px_bool PX_LoadAnimationToResource(PX_Runtime *runtime,const px_char Path[],cons
 px_bool PX_LoadScriptToResource(PX_Runtime *runtime,const px_char Path[],const px_char key[]);
 px_bool PX_LoadSoundToResource(PX_Runtime *runtime,const px_char Path[],const px_char key[]);
 px_bool PX_LoadFontModuleFromFile(PX_FontModule *fm,const px_char Path[]);
-px_bool PX_LoadJsonFromFile(PX_Json *json,const px_char *path)
+px_bool PX_LoadJsonFromFile(PX_Json *json,const px_char *path);
 
 #endif

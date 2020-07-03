@@ -1,7 +1,7 @@
 #ifndef _PX_TRAW_H
 #define _PX_TRAW_H
 
-#include "../Core/PX_Surface.h"
+#include "../core/PX_Surface.h"
 
 typedef struct _PX_TRaw_Header
 {

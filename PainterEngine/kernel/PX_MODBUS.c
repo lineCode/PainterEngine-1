@@ -23,5 +23,5 @@ px_int PX_ModbusWrite(PX_ModbusPacket *packet,px_word startAddr,px_word regcount
 
 px_int PX_ModbusRead(PX_ModbusPacket *packet,px_word startAddr,px_word regcount)
 {
-	return PX_ModbusPacketBuild(packet,0x03,startAddr,regcount,"",0);
+	return PX_ModbusPacketBuild(packet,0x03,startAddr,regcount,(px_byte *)"",0);
 }

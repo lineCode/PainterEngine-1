@@ -6,16 +6,12 @@ char const PC_ScriptPreload[]="#name \"shell\"\r\n\
 							  #runtime stack 1024\r\n\
 							  host int print(string s);\r\n\
 							  host int printimage(string s);\r\n\
-							  host int printshape(string s,int color);\r\n\
 							  host int printanimation(string s);\r\n\
-							  host int printpartical(int x,int y,string texture,string script,string _init,string _create,string _update);\r\n\
-							  host int printroundcursor(string s,int color);\r\n\
 							  host int playanimation(int id,string s);\r\n\
 							  host int setimagemask(int id,string s);\r\n\
 							  host int runscriptfunction(string key,string func);\r\n\
 							  host int close();\r\n\
 							  host int loadtexture(string path,string key);\r\n\
-							  host int loadshape(string path,string key);\r\n\
 							  host int loadanimation(string path,string key);\r\n\
 							  host int loadscript(string path,string key);\r\n";
 
@@ -57,21 +53,6 @@ px_void PX_ConsoleUpdateEx(PX_Console *pc)
 				y+=(px_int)PX_ObjectGetHeight(pCc->Object);
 			}
 			break;
-		case PX_OBJECT_TYPE_PARTICAL:
-			break;
-		case PX_OBJECT_TYPE_SHAPE:
-			{
-				PX_ObjectSetPosition(pCc->Object,0,(px_float)y,0);
-				y+=(px_int)PX_ObjectGetHeight(pCc->Object);
-			}
-			break;
-		case PX_OBJECT_TYPE_ROUNDCURSOR:
-			{
-				PX_Object_RoundCursor *pRc=PX_Object_GetRoundCursor(pCc->Object);
-				PX_ObjectSetPosition(pCc->Object,(px_float)pc->runtime->width/2,(px_float)y+pRc->shape->height/2,0);
-				y+=(px_int)PX_ObjectGetHeight(pCc->Object);
-			}
-			break;
 		default:
 			{
 				PX_ObjectSetPosition(pCc->Object,0,(px_float)y,0);
@@ -85,7 +66,7 @@ px_void PX_ConsoleUpdateEx(PX_Console *pc)
 PX_Object * PX_ConsolePrintText(PX_Console *pc,const px_char *text)
 {
 	PX_ConsoleColumn obj;
-	PX_Object *pObject=PX_Object_AutoTextCreate(&pc->runtime->mp_ui,PX_Object_ScrollAreaGetIncludedObjects(pc->Area),0,0,pc->runtime->width-1);
+	PX_Object *pObject=PX_Object_AutoTextCreate(&pc->runtime->mp_ui,PX_Object_ScrollAreaGetIncludedObjects(pc->Area),0,0,pc->runtime->width-1,PX_NULL);
 
 	if (pObject)
 	{
@@ -130,35 +111,7 @@ PX_Object * PX_ConsolePrintImage(PX_Console *pc,px_char *res_image_key)
 	return pObject;
 }
 
-PX_Object * PX_ConsolePrintShape(PX_Console *pc,px_char *res_image_key,px_color color)
-{
-	PX_ConsoleColumn obj;
-	PX_Resource *pShape;
-	PX_Object *pObject;
-	if(pShape=PX_ResourceLibraryGet(&pc->runtime->ResourceLibrary,res_image_key))
-	{
-		if (pShape->Type==PX_RESOURCE_TYPE_SHAPE)
-		{
-			pObject=PX_Object_ShapeCreate(&pc->runtime->mp_ui,PX_Object_ScrollAreaGetIncludedObjects(pc->Area),0,0,&pShape->shape);
-			PX_Object_ShapeSetAlign(pObject,PX_OBJECT_ALIGN_TOP|PX_OBJECT_ALIGN_LEFT);
-			PX_Object_ShapeSetBlendColor(pObject,color);
-			PX_ObjectSetSize(pObject,(px_float)pShape->shape.width,(px_float)pShape->shape.height,0);
-			obj.Object=pObject;
-			obj.id=pc->id++;
-			PX_VectorPushback(&pc->pObjects,&obj);
-			PX_ConsoleUpdateEx(pc);
-			PX_Object_ScrollAreaMoveToBottom(pc->Area);
-		}
-		else
-			return PX_NULL;
-	}
-	else
-	{
-		return PX_NULL;
-	}
 
-	return pObject;
-}
 
 PX_Object * PX_ConsolePrintAnimation(PX_Console *pc,px_char *res_animation_key)
 {
@@ -192,40 +145,7 @@ PX_Object * PX_ConsolePrintAnimation(PX_Console *pc,px_char *res_animation_key)
 }
 
 
-PX_Object * PX_ConsolePrintPartical(PX_Console *pc,px_int x,px_int y,px_char *res_texture,px_char *script,px_char *_init,px_char *_create,px_char *_updata)
-{
-	PX_ConsoleColumn obj;
-	PX_Resource *pTextureRes,*pScriptRes;
-	PX_Object *pObject;
-	if(!(pTextureRes=PX_ResourceLibraryGet(&pc->runtime->ResourceLibrary,res_texture)))
-	{
-		return PX_NULL;
-	}
 
-	if (pTextureRes->Type!=PX_RESOURCE_TYPE_TEXTURE)
-	{
-		return PX_NULL;
-	}
-
-	if(!(pScriptRes=PX_ResourceLibraryGet(&pc->runtime->ResourceLibrary,script)))
-	{
-		return PX_NULL;
-	}
-
-	if (pScriptRes->Type!=PX_RESOURCE_TYPE_SCRIPT)
-	{
-		return PX_NULL;
-	}
-
-
-	pObject=PX_Object_ParticalCreate(&pc->runtime->mp_ui,PX_Object_ScrollAreaGetIncludedObjects(pc->Area),x,y,0,&pTextureRes->texture,&pScriptRes->Script,_init,_create,_updata);
-	PX_ObjectSetSize(pObject,0,0,0);
-	obj.Object=pObject;
-	obj.id=pc->id++;
-	PX_VectorPushback(&pc->pObjects,&obj);
-
-	return pObject;
-}
 
 PX_Object * PX_ConsoleShowImage(PX_Console *pc,px_char *res_image_key)
 {
@@ -304,43 +224,6 @@ px_void  PC_ConsoleSetImageMask(PX_Console *pc,px_int id,px_char *mask_key)
 
 
 
-PX_Object *  PC_ConsoleCreateRoundCursor(PX_Console *pc,px_char *shape_key,px_color clr)
-{
-
-	PX_ConsoleColumn obj;
-	PX_Resource *pShape;
-	PX_Object *pObject;
-	if(pShape=PX_ResourceLibraryGet(&pc->runtime->ResourceLibrary,shape_key))
-	{
-		if (pShape->Type==PX_RESOURCE_TYPE_SHAPE)
-		{
-			pObject=PX_Object_RoundCursorCreate(&pc->runtime->mp_ui,PX_Object_ScrollAreaGetIncludedObjects(pc->Area),0,0,&pShape->shape,clr);
-			PX_ObjectSetSize(pObject,(px_float)pShape->shape.width,(px_float)pShape->shape.height,0);
-			obj.Object=pObject;
-			obj.id=pc->id++;
-			PX_VectorPushback(&pc->pObjects,&obj);
-			PX_ConsoleUpdateEx(pc);
-			PX_Object_ScrollAreaMoveToBottom(pc->Area);
-		}
-		else
-			return PX_NULL;
-	}
-	else
-	{
-		return PX_NULL;
-	}
-
-	return pObject;
-}
-
-
-
-
-
-
-
-
-
 px_bool PC_ConsoleVM_Print(PX_ScriptVM_Instance *Ins)
 {
 	PX_Console *pc=(PX_Console *)Ins->pThread[Ins->T].user_runtime_data;
@@ -369,26 +252,6 @@ px_bool PC_ConsoleVM_PrintImage(PX_ScriptVM_Instance *Ins)
 	return PX_TRUE;
 }
 
-px_bool PC_ConsoleVM_PrintShape(PX_ScriptVM_Instance *Ins)
-{
-	px_color clr;
-	PX_Console *pc=(PX_Console *)Ins->pThread[Ins->T].user_runtime_data;
-
-	if (PX_ScriptVM_STACK(Ins,0).type!=PX_SCRIPTVM_VARIABLE_TYPE_STRING)
-	{
-		PX_ScriptVM_RET(Ins,PX_ScriptVM_Variable_int(0));
-		return PX_TRUE;
-	}
-	if (PX_ScriptVM_STACK(Ins,1).type!=PX_SCRIPTVM_VARIABLE_TYPE_INT)
-	{
-		PX_ScriptVM_RET(Ins,PX_ScriptVM_Variable_int(0));
-		return PX_TRUE;
-	}
-	clr._argb.ucolor=PX_ScriptVM_STACK(Ins,1)._uint;
-	PX_ConsolePrintShape(pc,PX_ScriptVM_STACK(Ins,0)._string.buffer,clr);
-	PX_ScriptVM_RET(Ins,PX_ScriptVM_Variable_int(PX_VECTORAT(PX_ConsoleColumn,&pc->pObjects,pc->pObjects.size-1)->id));
-	return PX_TRUE;
-}
 
 px_bool PC_ConsoleVM_PrintAnimation(PX_ScriptVM_Instance *Ins)
 {
@@ -455,88 +318,6 @@ px_bool PC_ConsoleVM_Close(PX_ScriptVM_Instance *Ins)
 
 
 
-px_bool PC_ConsoleVM_PrintPartical(PX_ScriptVM_Instance *Ins)
-{
-	PX_Console *pc=(PX_Console *)Ins->pThread[Ins->T].user_runtime_data;
-
-	if (PX_ScriptVM_STACK(Ins,0).type!=PX_SCRIPTVM_VARIABLE_TYPE_INT)
-	{
-		PX_ScriptVM_RET(Ins,PX_ScriptVM_Variable_int(0));
-		return PX_TRUE;
-	}
-	if (PX_ScriptVM_STACK(Ins,1).type!=PX_SCRIPTVM_VARIABLE_TYPE_INT)
-	{
-		PX_ScriptVM_RET(Ins,PX_ScriptVM_Variable_int(0));
-		return PX_TRUE;
-	}
-
-	if (PX_ScriptVM_STACK(Ins,2).type!=PX_SCRIPTVM_VARIABLE_TYPE_STRING)
-	{
-		PX_ScriptVM_RET(Ins,PX_ScriptVM_Variable_int(0));
-		return PX_TRUE;
-	}
-
-	if (PX_ScriptVM_STACK(Ins,3).type!=PX_SCRIPTVM_VARIABLE_TYPE_STRING)
-	{
-		PX_ScriptVM_RET(Ins,PX_ScriptVM_Variable_int(0));
-		return PX_TRUE;
-	}
-
-	if (PX_ScriptVM_STACK(Ins,4).type!=PX_SCRIPTVM_VARIABLE_TYPE_STRING)
-	{
-		PX_ScriptVM_RET(Ins,PX_ScriptVM_Variable_int(0));
-		return PX_TRUE;
-	}
-
-	if (PX_ScriptVM_STACK(Ins,5).type!=PX_SCRIPTVM_VARIABLE_TYPE_STRING)
-	{
-		PX_ScriptVM_RET(Ins,PX_ScriptVM_Variable_int(0));
-		return PX_TRUE;
-	}
-
-	if (PX_ScriptVM_STACK(Ins,6).type!=PX_SCRIPTVM_VARIABLE_TYPE_STRING)
-	{
-		PX_ScriptVM_RET(Ins,PX_ScriptVM_Variable_int(0));
-		return PX_TRUE;
-	}
-
-	if(PX_ConsolePrintPartical(\
-		pc,\
-		PX_ScriptVM_STACK(Ins,0)._int,\
-	    PX_ScriptVM_STACK(Ins,1)._int,\
-		PX_ScriptVM_STACK(Ins,2)._string.buffer,\
-		PX_ScriptVM_STACK(Ins,3)._string.buffer,\
-		PX_ScriptVM_STACK(Ins,4)._string.buffer,\
-		PX_ScriptVM_STACK(Ins,5)._string.buffer,\
-		PX_ScriptVM_STACK(Ins,6)._string.buffer\
-		))
-	PX_ScriptVM_RET(Ins,PX_ScriptVM_Variable_int(PX_VECTORAT(PX_ConsoleColumn,&pc->pObjects,pc->pObjects.size-1)->id));
-	else
-		PX_ConsolePrintText(pc,"Could not Create Partical Launcher");
-	return PX_TRUE;
-}
-
-px_bool PC_ConsoleVM_PrintRoundCursor(PX_ScriptVM_Instance *Ins)
-{
-	px_color clr;
-	PX_Console *pc=(PX_Console *)Ins->pThread[Ins->T].user_runtime_data;
-
-	if (PX_ScriptVM_STACK(Ins,0).type!=PX_SCRIPTVM_VARIABLE_TYPE_STRING)
-	{
-		PX_ScriptVM_RET(Ins,PX_ScriptVM_Variable_int(0));
-		return PX_TRUE;
-	}
-	if (PX_ScriptVM_STACK(Ins,1).type!=PX_SCRIPTVM_VARIABLE_TYPE_INT)
-	{
-		PX_ScriptVM_RET(Ins,PX_ScriptVM_Variable_int(0));
-		return PX_TRUE;
-	}
-	clr._argb.ucolor=PX_ScriptVM_STACK(Ins,1)._uint;
-	PC_ConsoleCreateRoundCursor(pc,PX_ScriptVM_STACK(Ins,0)._string.buffer,clr);
-	PX_ScriptVM_RET(Ins,PX_ScriptVM_Variable_int(PX_VECTORAT(PX_ConsoleColumn,&pc->pObjects,pc->pObjects.size-1)->id));
-	return PX_TRUE;
-}
-
 px_void  PC_ConsoleRunScriptFunction(PX_Console *pc,px_char *script_key,px_char *func_name)
 {
 	PX_Resource *pScriptRes;
@@ -546,9 +327,7 @@ px_void  PC_ConsoleRunScriptFunction(PX_Console *pc,px_char *script_key,px_char 
 		{
 			PX_ScriptVM_RegistryHostFunction(&pScriptRes->Script,"PRINT",PC_ConsoleVM_Print);//Print
 			PX_ScriptVM_RegistryHostFunction(&pScriptRes->Script,"PRINTIMAGE",PC_ConsoleVM_PrintImage);//Print Image
-			PX_ScriptVM_RegistryHostFunction(&pScriptRes->Script,"PRINTSHAPE",PC_ConsoleVM_PrintShape);//Print Shape
 			PX_ScriptVM_RegistryHostFunction(&pScriptRes->Script,"PRINTANIMATION",PC_ConsoleVM_PrintAnimation);//Print Animation
-			PX_ScriptVM_RegistryHostFunction(&pScriptRes->Script,"PRINTPARTICAL",PC_ConsoleVM_PrintPartical);//Print Partical
 			if(!PX_ScriptVM_InstanceRunFunction(&pScriptRes->Script,0,pc,"_BOOT",PX_NULL,0))
 			{
 				return;
@@ -654,13 +433,10 @@ px_bool PX_ConsoleExecute(PX_Console *pc,char *pshellstr)
 	
 	PX_ScriptVM_RegistryHostFunction(&Ins,"PRINT",PC_ConsoleVM_Print);//Print
 	PX_ScriptVM_RegistryHostFunction(&Ins,"PRINTIMAGE",PC_ConsoleVM_PrintImage);//Print Image
-	PX_ScriptVM_RegistryHostFunction(&Ins,"PRINTSHAPE",PC_ConsoleVM_PrintShape);//Print Shape
 	PX_ScriptVM_RegistryHostFunction(&Ins,"PRINTANIMATION",PC_ConsoleVM_PrintAnimation);//Print Animation
-	PX_ScriptVM_RegistryHostFunction(&Ins,"PRINTPARTICAL",PC_ConsoleVM_PrintPartical);//Print Partical
 	PX_ScriptVM_RegistryHostFunction(&Ins,"PLAYANIMATION",PC_ConsoleVM_PlayAnimation);//play Animation
 	PX_ScriptVM_RegistryHostFunction(&Ins,"SETIMAGEMASK",PC_ConsoleVM_SetImageMask);//SetImage Mask
 	PX_ScriptVM_RegistryHostFunction(&Ins,"RUNSCRIPTFUNCTION",PC_ConsoleVM_RunScriptFunction);//Load PatricalScript
-	PX_ScriptVM_RegistryHostFunction(&Ins,"PRINTROUNDCURSOR",PC_ConsoleVM_PrintRoundCursor);//print roundcursor
 	PX_ScriptVM_RegistryHostFunction(&Ins,"CLOSE",PC_ConsoleVM_Close);//close
 	if (pc->registry_call)
 	{
@@ -737,7 +513,7 @@ px_bool PC_ConsoleInit(PX_Console *pc)
 	PX_ObjectRegisterEvent(pc->Area,PX_OBJECT_EVENT_KEYDOWN,PX_ConsoleOnEnter,PX_NULL);
 	PX_ObjectRegisterEvent(pc->Area,PX_OBJECT_EVENT_CURSORDOWN,PX_ConsoleOnMouseDown,PX_NULL);
 	PX_Object_ScrollAreaSetBorder(pc->Area,PX_FALSE);
-	if(!(pc->Input=PX_Object_EditCreate(&pc->runtime->mp_ui,PX_Object_ScrollAreaGetIncludedObjects(pc->Area),0,0,pc->runtime->width-1,PX_FontGetCharactorHeight()+4,PX_COLOR(255,0,255,0)))) return PX_FALSE;
+	if(!(pc->Input=PX_Object_EditCreate(&pc->runtime->mp_ui,PX_Object_ScrollAreaGetIncludedObjects(pc->Area),0,0,pc->runtime->width-1,PX_FontGetCharactorHeight()+4,PX_NULL,PX_COLOR(255,0,255,0)))) return PX_FALSE;
 	PX_Object_EditSetCursorColor(pc->Input,PX_COLOR(255,0,255,0));
 	PX_Object_EditSetTextColor(pc->Input,PX_COLOR(255,0,255,0));
 	PX_Object_EditSetBorderColor(pc->Input,PX_COLOR(255,0,255,0));
@@ -771,7 +547,6 @@ px_bool PX_ConsoleInitialize(PX_Runtime *runtime,PX_Console *pc)
 }
 px_void PX_ConsolePostEvent(PX_Console *pc,PX_Object_Event e)
 {
-	px_int i;
 	if(pc->show)
 	{
 		if (e.Event==PX_OBJECT_EVENT_KEYDOWN)
@@ -786,17 +561,6 @@ px_void PX_ConsolePostEvent(PX_Console *pc,PX_Object_Event e)
 		if (e.Event!=PX_OBJECT_EVENT_CURSORMOVE)
 		{
 			PX_ObjectPostEvent(pc->Root,e);
-		}
-		else
-		{
-			for (i=0;i<pc->pObjects.size;i++)
-			{
-				PX_ConsoleColumn *pCcObject=PX_VECTORAT(PX_ConsoleColumn,&pc->pObjects,i);
-				if (pCcObject->Object->Type==PX_OBJECT_TYPE_ROUNDCURSOR)
-				{
-					PX_ObjectPostEvent(pCcObject->Object,e);
-				}
-			}
 		}
 	}
 	else

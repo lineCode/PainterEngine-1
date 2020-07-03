@@ -213,6 +213,9 @@ px_double PX_ANNTrain(PX_ANN *pAnn,px_double *input,px_double *expect)
 				case PX_ANN_REGULARZATION_L2:
 					delta=delta-delta*pAnn->regularization_rate/pAnn->Layer->Neurals*p->w[i*p->pPrevious->Neurals+j];
 					break;
+					case PX_ANN_REGULARZATION_NONE:
+					default:
+						break;
 				}
 				p->w[i*p->pPrevious->Neurals+j]-=delta*pAnn->learningRate;
 			}
